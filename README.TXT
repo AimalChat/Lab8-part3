@@ -1,564 +1,72 @@
-# Lab8-part-2
-Part 2 of Lab 8 for prog101
+ Part III: Refactoring
 
-19. It would be nice to define that CommandWords class is responsible for producing (but not printing!) 
-the list of command words, but that the Game class should decide how it is presented to the user. 
-Change the ShowAll from CommandWords to not print the list of commands, but only produce and 
-return it. Make sure that your program still works as before.
+31. What sort of baseline functionality tests might we wish to establish in the current version of the game? 
 
-19b.
-//commandWords class
-public static String showCommandWords()
-    {
-        StringBuilder listCommands = new StringBuilder();
-        listCommands.append("     ");
-        for(String command : getValidCommands())
-        {
-            listCommands.append(command + "  ");
-        }
-        String listOfCommands = listCommands.toString();
-        System.out.println("Your command words are:");
-        return listOfCommands;
-    }
+31b.Most likely a Player to store the user's existence in game and make it malleable to the surroundings around, in other words, make it an interactive experience where decisions are based upon a player rather than the entirety of the game?
 
-//game class
-/**
-     * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the 
-     * command words.
-     */
-    private void printHelp() 
-    {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
-        System.out.println();
-        System.out.println(CommandWords.showCommandWords());
-    }
+32. Refactor your project to introduce a separate Player class. A Player object should store at least the 
+current room of the player, but you may also like to store the player’s name or other information. 
 
-20. If the game has a lot of commands, it might be useful in the getCommandList method to return the list
- sorted alphabetically. Implement that feature using the static sort method of the Arrays class in the 
-java.util package.
-
-20b.
-//in commandWords class
-public static String[] getValidCommands()
-    {
-        Arrays.sort(validCommands);
-        return validCommands;
-    }
-
-21. How might the CommandWords class provide more detail on each command? For instance, a list of 
-command words, whether each has a second word, and what each command does. Add a method to your
-version of CommandWords to provide this and add a command word to the game whose use will call 
-that method and displays what it returns.
-
-21b.We could add further fields to a command such as int length and String Utility. Then we simply just return
-those fields with accessor methods and print them out in the CommandWords class.
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashMap;
-/**
- * This class is part of the "World of Zuul" application. 
- * "World of Zuul" is a very simple, text based adventure game.  
- * 
- * This class holds an enumeration of all command words known to the game.
- * It is used to recognise commands as they are typed in.
- *
- * @author  Michael Kölling and David J. Barnes
- * @version 7.0
- */
-
-public class CommandWords
-{
-    // A constant array that holds all valid command words.
-    private static final String[] validCommands = {
-        "go", "quit", "help", "look", "eat", "details"
-    };
-    private static final HashMap<String,Integer> LENGTH = new HashMap<>();
-    static 
-    {
-        LENGTH.put("go",2);
-        LENGTH.put("quit",1);
-        LENGTH.put("help",1);
-        LENGTH.put("look",1);
-        LENGTH.put("eat",1);
-        LENGTH.put("details",1);
-    }
-    private static final HashMap<String,String> DESCRIPTION = new HashMap<>();
-    static
-    {
-        DESCRIPTION.put("go", "to move around, must specify direction after 'go'.");
-        DESCRIPTION.put("quit", "to exit game.");
-        DESCRIPTION.put("help", "displays game context & valid commands.");
-        DESCRIPTION.put("look", "to examine current surroundings.");
-        DESCRIPTION.put("eat", "to consume an item");
-        DESCRIPTION.put("details", "this very message shows length and a brief explaination of all commands.");
-    }
-    public static void commandDetails()
-    {
-        StringBuilder commandDetails = new StringBuilder();
-        for(String command : getValidCommands())
-        {
-            commandDetails.append("\n");
-            commandDetails.append(command + ": "+"\n");
-            commandDetails.append("Length: requires " + LENGTH.get(command)+ " word(s)" +"\n" 
-            + "Use: " + DESCRIPTION.get(command)+"\n");
-            commandDetails.append("\n");
-        }
-        String commandsDetails = commandDetails.toString();
-        System.out.println(commandsDetails);
-    }
-//In game class
-/**
-     * Given a command, process (that is: execute) the command.
-     * @param command The command to be processed.
-     * @return true If the command ends the game, false otherwise.
-     */
-    private boolean processCommand(Command command) 
-    {
-        boolean wantToQuit = false;
-        if(command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
-            return false;
-        }
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        }
-        else if (commandWord.equals("go")) {
-            goRoom(command);
-        }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }else if (commandWord.equals("look")) {
-            lookAround();
-        }else if (commandWord.equals("eat")) {
-            eat();
-        }else if (commandWord.equals("details")) {//21
-            showCommandDetails();
-        }
-        return wantToQuit;
-    }
-    private void showCommandDetails()//21
-    {
-        parser.getCommands().commandDetails();
-    }
-    
-22. Find out what the model-view-controller pattern is. You can do a web search to get information, or you 
-can use any other sources you find. How is it related to the topic discussed here? What does it suggest? 
-How could it be applied to this project? (Only discuss its application to this project, as an actual 
-implementation would be an advanced challenge exercise.) 
-
-22b.
-
-23. Extend either your adventure project or the zuul-better project so that a room can contain a single item. Items have a description and a weight. When creating rooms and setting their exits, items for this game should also be created. When a player enters a room, information about an item in this room should be 
-displayed. 
-
-23b.
-import java.util.HashMap;
+32b.
 import java.util.ArrayList;
 
 /**
- * Write a description of class Item here.
+ * Write a description of class Player here.
  *
  * @author (your name)
  * @version (a version number or a date)
  */
-public class Item
+public class Player
 {
-    private int weight;
-    private String itemName;
-    private String description;
-    private static ArrayList<Item> items = new ArrayList<Item>();
-    static
-    {
-        items.add(new Item("magic cookie","a special cookie that gives the power to hold more items.", 2));
-    }
-    
-    /**
-     * Constructor for objects of class Item
-     */
-    public Item(String itemName, String description, int weight)
-    {
-        this.itemName = itemName;
-        this.description = description;
-        this.weight = weight;
-    }
-    
-    public static ArrayList<Item> getItemList()
-    {
-        return items;
-    }
-    
-    public String getItemName()
-    {
-        return itemName;
-    }
-    
-    public String getItemDescription()
-    {
-        return description;
-    }
-    
-    public int getWeight()
-    {
-        return weight;
-    }
-}
-//Room Class
-import java.util.HashMap;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Class Room - a room in an adventure game.
- *
- * This class is part of the "World of Zuul" application. 
- * "World of Zuul" is a very simple, text based adventure game.  
- *
- * A "Room" represents one location in the scenery of the game.  It is 
- * connected to other rooms via exits.  The exits are labelled north, 
- * east, south, west.  For each direction, the room stores a reference
- * to the neighboring room, or null if there is no exit in that direction.
- * 
- * @author  Michael Kölling and David J. Barnes
- * @version 7.0
- */
-public class Room 
-{
-    private String description;
-    private HashMap<String, Room> exits;
-    private ArrayList<Item> itemsInRoom;
-
-    /**
-     * Create a room described "description". Initially, it has no exits. 
-     * "description" is something like "a kitchen" or "an open court yard".
-     * @param description The room's description.
-     */
-    public Room(String description) 
-    {
-        this.description = description;
-        exits = new HashMap<String,Room>();
-        itemsInRoom = new ArrayList<Item>();
-    }
-    
-    public String getItemsString()
-    {
-        List<String> listOfItems = new ArrayList<>();
-        StringBuilder itemsString = new StringBuilder();
-        itemsString.append("You see: ");
-        if(itemsInRoom.isEmpty())
-        {
-            itemsString.append("nothing of value here.");
-            return itemsString.toString().trim();
-        }else
-        {
-            for(Item item : itemsInRoom)
-            {
-                //itemsString.append(item.getItemName() + ", ");
-                listOfItems.add(item.getItemName());
-            }
-            itemsString.append(String.join(", ",listOfItems));
-            return itemsString.toString();
-            //itemsString.deleteCharAt(itemsString.length() - 2);
-            //return itemsString.toString().trim();
-        }
-//Game class
-    }
-   /** 
-     * "look" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private void lookAround() 
-    {
-        System.out.println(currentRoom.getLongDescription() +"\n"+
-        currentRoom.getItemsString());
-    }
-    
-24. How should the information be produced about an item present in a room? Which class should produce 
-the string describing the item? Which class should print it? Why? Explain in writing. If answering this 
-exercise makes you feel you should change your implementation, go ahead and make the changes.
-
-24b.I believe the string should be made by the Room class itself, not the game or Item class becasue the
-only entity that should know the list of items in a room currently inhabbited by the player is the room
-itself. The room knows itself enough to be able to return whatever values it is storing, not the game, not
-Item but the Room class.
- 
-25. Modify the project so that a room can hold any number of items. Use a collection to do this. Make sure 
-the room has an addItem method that places an item into the room. Make sure all items get shown 
-when a player enters a room. 
-
-25b. It has been done in my attempt at Q23.
-
-26. Implement a back command. This command does not have a second word. Entering the back command 
-takes the player into the previous room they were in.
-
-import java.util.ArrayList;
-
-/**
- *  This class is the main class of the "World of Zuul" application. 
- *  "World of Zuul" is a very simple, text based adventure game.  Users 
- *  can walk around some scenery. That's all. It should really be extended 
- *  to make it more interesting!
- * 
- *  To play this game, create an instance of this class and call the "play"
- *  method.
- * 
- *  This main class creates and initialises all the others: it creates all
- *  rooms, creates the parser and starts the game.  It also evaluates and
- *  executes the commands that the parser returns.
- * 
- * @author  Michael Kölling and David J. Barnes
- * @version 7.0
- */
-public class Game 
-{
-    private Parser parser;
+    // instance variables - replace the example below with your own
+    private int weightLimit = 15;
+    private int currentWeight = 0;
+    private String name;
     private Room currentRoom;
-    private static final int WEIGHTLIMIT = 15;
-    private static final ArrayList<Item> items = Item.getItemList();
-    private ArrayList<Room> history = new ArrayList<>();//26
-    
-    public Game() 
-    {
-        createRooms();
-        parser = new Parser();
-    }
-    
-    /**
-     * Create all the rooms and link their exits together.
-     */
-    public void createRooms()
-    {
-        Room outside, theater, pub, lab, office;
-      
-        // create the rooms
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        
-        // initialise room exits
-        outside.setExit("east", theater);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-        theater.setExit("west", outside);
-        pub.setExit("east", outside);
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
-        office.setExit("west", lab);
-        //initialise items
-        pub.addItem(items.get(0));
-        currentRoom = outside;
-        history.add(currentRoom);//26
-    }
+    private ArrayList<Item> inventory = new ArrayList<>();
 
     /**
-     *  Main play routine. Loops until end of play.
+     * Constructor for objects of class Player
      */
-    public void play() 
-    {            
-        printWelcome();
-
-        // Enter the main command loop.  Here we repeatedly read commands and
-        // execute them until the game is over.
-        
-        boolean finished = false;
-        while (! finished) {
-            Command command = parser.getCommand();
-            finished = processCommand(command);
-        }
-        System.out.println("Thank you for playing.  Good bye.");
-    }
-
-    /**
-     * Print out the opening message for the player.
-     */
-    private void printWelcome()
+    public Player(String name)
     {
-        System.out.println();
-        System.out.println("Welcome to the World of Zuul!");
-        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
-        System.out.println("Type 'help' if you need help.");
-        System.out.println();
-        System.out.println(currentRoom.getLongDescription());
-        System.out.println();
+        name = this.name;
     }
     
-    /**
-     * Given a command, process (that is: execute) the command.
-     * @param command The command to be processed.
-     * @return true If the command ends the game, false otherwise.
-     */
-    private boolean processCommand(Command command) 
+    public void setRoom(Room newRoom)
     {
-        boolean wantToQuit = false;
-
-        if(command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
-            return false;
-        }
-
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        }
-        else if (commandWord.equals("go")) {
-            goRoom(command);
-        }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }else if (commandWord.equals("look")) {
-            lookAround();
-        }else if (commandWord.equals("use")) {
-            use();
-        }else if (commandWord.equals("details")) {//21
-            showCommandDetails();
-        }else if (commandWord.equals("use")) {
-            use(command);
-        }else if(commandWord.equals("back")) {//26
-            goBack();
-        }
-        
-
-        return wantToQuit;
-    }
-
-    // implementations of user commands:
-    
-    public void goBack()//26
-    {
-        if(history.size() > 1){
-            history.remove(history.size() - 1);
-            currentRoom = history.get(history.size() - 1);
-            lookAround();
-        }else{
-            System.out.println("Go back where?");
-        }
-    }
-
-    /**
-     * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the 
-     * command words.
-     */
-    private void printHelp() 
-    {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
-        System.out.println();
-        System.out.println(CommandWords.showCommandWords());
+        currentRoom = newRoom;
     }
     
-    /** 
-     * "eat" was entered. Here we print a message saying the
-     * player has eaten something.
-     */
-    private void use(Command command) 
+    public int getCurrentWeight()
     {
-        if(!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Use what?");
-            return;
-        }
-        
-        String item = command.getSecondWord();
-        
-    }
-
-    /** 
-     * Try to go in one direction. If there is an exit, enter
-     * the new room, otherwise print an error message.
-     */
-    private void goRoom(Command command) 
-    {
-        if(!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Go where?");
-            return;
-        }
-
-        String direction = command.getSecondWord();
-
-        // Try to leave current room.
-        Room nextRoom = currentRoom.getExit(direction);
-
-        if (nextRoom == null) {
-            System.out.println("There is no door!");
-        }
-        else {
-            currentRoom = nextRoom;
-            history.add(currentRoom);//26
-            System.out.println(currentRoom.getLongDescription());
-            System.out.println();
-        }
+        return currentWeight;
     }
     
-    /** 
-     * "look" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private void lookAround() 
+    public int getWeightLimit()
     {
-        System.out.println(currentRoom.getLongDescription() +"\n"+
-        currentRoom.getItemsString());
+        return weightLimit;
     }
     
-    /** 
-     * "eat" was entered. Here we print a message saying the
-     * player has eaten something.
-     */
-    private void use() 
+    public String getName()
     {
-        System.out.println("You have eaten now and are now freed of the painful");
-        System.out.println("hunger plaguing your mind");
+        return name;
     }
     
-    private void showCommandDetails()//21
+    public Room getCurrentRoom()
     {
-        parser.getCommands().commandDetails();
+        return currentRoom;
     }
-
-    /** 
-     * "Quit" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private boolean quit(Command command) 
+    
+    public ArrayList<Item> getInventory()
     {
-        if(command.hasSecondWord()) {
-            System.out.println("Quit what?");
-            return false;
-        }
-        else {
-            // signal that we want to quit
-            return true;  
-        }
+        return inventory;
     }
 }
-
-
-28. Test your new command. Does it work as expected? Also, test cases where the command is used 
-incorrectly. For example, what does your program do if a player types a second word after the back 
-command? Does it behave sensibly? 
-
-Yes it does! It returns a message saying "Go back where?" in case of it being impossible and it works
-if you do it again and again.
-
-29. What does your program do if you type “back” twice? Is this behavior sensible?
-
-Yes, it works as I stated previously!
-
-30. Challenge exercise Implement the back command so that using it repeatedly takes you back several rooms,
-all the way to the beginning of the game if used often enough. Use a Stack to do this. (You may need to 
-find out about stacks. Look at the Java library documentation.)
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Iterator;
 
 /**
  *  This class is the main class of the "World of Zuul" application. 
@@ -579,13 +87,14 @@ import java.util.Stack;
 public class Game 
 {
     private Parser parser;
-    private Room currentRoom;
-    private static final int WEIGHTLIMIT = 15;
+    private static Player user;
+    private static int weightLimit = user.getWeightLimit();
     private static final ArrayList<Item> items = Item.getItemList();
     private Stack<Room> history = new Stack<>();//30
     
     public Game() 
     {
+        user = new Player("The Chosen One");
         createRooms();
         parser = new Parser();
     }
@@ -613,10 +122,18 @@ public class Game
         lab.setExit("north", outside);
         lab.setExit("east", office);
         office.setExit("west", lab);
+        
         //initialise items
-        pub.addItem(items.get(0));
-        currentRoom = outside;
-        history.push(currentRoom);//30
+        lab.addItem(items.get(0));
+        outside.addItem(items.get(3));
+        outside.addItem(items.get(1));
+        office.addItem(items.get(1));
+        theater.addItem(items.get(4));
+        pub.addItem(items.get(2));
+        
+        //initialize starting room.
+        user.setRoom(outside);
+        history.push(user.getCurrentRoom());//30
     }
 
     /**
@@ -647,170 +164,11 @@ public class Game
         System.out.println("World of Zuul is a new, incredibly boring adventure game.");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
-        System.out.println(currentRoom.getLongDescription());
+        System.out.println(user.getCurrentRoom().getLongDescription());
         System.out.println();
     }
     
     /**
-     * Given a command, process (that is: execute) the command.
-     * @param command The command to be processed.
-     * @return true If the command ends the game, false otherwise.
-     */
-    private boolean processCommand(Command command) 
-    {
-        boolean wantToQuit = false;
-
-        if(command.isUnknown()) {
-            System.out.println("I don't know what you mean...");
-            return false;
-        }
-
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        }
-        else if (commandWord.equals("go")) {
-            goRoom(command);
-        }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }else if (commandWord.equals("look")) {
-            lookAround();
-        }else if (commandWord.equals("use")) {
-            use();
-        }else if (commandWord.equals("details")) {//21
-            showCommandDetails();
-        }else if (commandWord.equals("use")) {
-            use(command);
-        }else if(commandWord.equals("back")) {//26
-            goBack();
-        }
-        
-
-        return wantToQuit;
-    }
-
-    // implementations of user commands:
-    
-    public void goBack()//30
-    {
-        if(history.size() <= 1){
-            System.out.println("Go back where?");
-        }else{
-            history.pop();
-            currentRoom = history.peek();
-            lookAround();
-        }
-    }
-
-    /**
-     * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the 
-     * command words.
-     */
-    private void printHelp() 
-    {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
-        System.out.println();
-        System.out.println(CommandWords.showCommandWords());
-    }
-    
-    /** 
-     * "eat" was entered. Here we print a message saying the
-     * player has eaten something.
-     */
-    private void use(Command command) 
-    {
-        if(!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Use what?");
-            return;
-        }
-        
-        String item = command.getSecondWord();
-        
-    }
-
-    /** 
-     * Try to go in one direction. If there is an exit, enter
-     * the new room, otherwise print an error message.
-     */
-    private void goRoom(Command command) 
-    {
-        if(!command.hasSecondWord()) {
-            // if there is no second word, we don't know where to go...
-            System.out.println("Go where?");
-            return;
-        }
-
-        String direction = command.getSecondWord();
-
-        // Try to leave current room.
-        Room nextRoom = currentRoom.getExit(direction);
-
-        if (nextRoom == null) {
-            System.out.println("There is no door!");
-        }
-        else {
-            currentRoom = nextRoom;
-            history.push(currentRoom);//30
-            System.out.println(currentRoom.getLongDescription());
-            System.out.println();
-        }
-    }
-    
-    /** 
-     * "look" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private void lookAround() 
-    {
-        System.out.println(currentRoom.getLongDescription() +"\n"+
-        currentRoom.getItemsString());
-    }
-    
-    /** 
-     * "eat" was entered. Here we print a message saying the
-     * player has eaten something.
-     */
-    private void use() 
-    {
-        System.out.println("You have eaten now and are now freed of the painful");
-        System.out.println("hunger plaguing your mind");
-    }
-    
-    private void showCommandDetails()//21
-    {
-        parser.getCommands().commandDetails();
-    }
-
-    /** 
-     * "Quit" was entered. Check the rest of the command to see
-     * whether we really quit the game.
-     * @return true, if this command quits the game, false otherwise.
-     */
-    private boolean quit(Command command) 
-    {
-        if(command.hasSecondWord()) {
-            System.out.println("Quit what?");
-            return false;
-        }
-        else {
-            // signal that we want to quit
-            return true;  
-        }
-    }
-}
-
-
-31. Replace the sequence of if-else tests in the processCommand method of your Game class with an 
-equivalent switch statement. In the default case, as well as printing a “command not recognized” message,
- print the list of available commands.
-
-31b.
-/**
      * Given a command, process (that is: execute) the command.
      * @param command The command to be processed.
      * @return true If the command ends the game, false otherwise.
@@ -832,7 +190,7 @@ equivalent switch statement. In the default case, as well as printing a “comma
             case "go" -> goRoom(command);
             case "quit" -> wantToQuit = quit(command);
             case "look" -> lookAround();
-            case "use" -> use();
+            case "use" -> use(command);
             case "details" -> showCommandDetails();
             case "back" -> goBack();
             case "investigate" -> investigate();
@@ -840,4 +198,361 @@ equivalent switch statement. In the default case, as well as printing a “comma
         }
 
         return wantToQuit;
+    }
+
+    // implementations of user commands:
+    
+    public void investigate()
+    {
+        System.out.println("You closely inspect your surroundings here.");
+        if(user.getCurrentRoom().getItemsInRoom().isEmpty())
+        {
+            System.out.println("You have not found anything.");
+        }else
+        {
+            for(Item item : user.getCurrentRoom().getItemsInRoom())
+            {
+                System.out.println(item.itemDetails());
+            }
+        }
+    }
+    
+    public void goBack()//30
+    {
+        if(history.size() <= 1){
+            System.out.println("Go back where?");
+        }else{
+            history.pop();
+            user.setRoom(history.peek());//currentRoom = history.peek();
+            System.out.println("You move back to the previous room.");
+            System.out.println(user.getCurrentRoom().getLongDescription());
+        }
+    }
+
+    /**
+     * Print out some help information.
+     * Here we print some stupid, cryptic message and a list of the 
+     * command words.
+     */
+    private void printHelp() 
+    {
+        System.out.println("You are lost. You are alone. You wander");
+        System.out.println("around at the university.");
+        System.out.println();
+        System.out.println(CommandWords.showCommandWords());
+    }
+    
+    /** 
+     * "use" was entered. Here we print a message saying the
+     * player has eaten something.
+     */
+    private void use(Command command) 
+    {
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know where to go...
+            System.out.println("Use what?");
+            return;
+        }
+        
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getCurrentRoom().getItemsInRoom().iterator();
+        while(it.hasNext())
+        {
+            Item itemAvailable = it.next();
+            if(itemAvailable.getItemName().equals(item))
+            {
+                System.out.println("You have used: " + item + " successfully.");
+                if(itemAvailable.getItemName().equals("potion"))
+                {
+                    weightLimit = weightLimit + 984;
+                    System.out.println("The potion has made you able to carry around "
+                    + weightLimit + " lbs. WOW, you are on steroids.");
+                }
+                it.remove();
+                found = true;
+                break;//stops if a match is found!
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no " + item + " here to use.");
+        }
+    }
+
+    /** 
+     * Try to go in one direction. If there is an exit, enter
+     * the new room, otherwise print an error message.
+     */
+    private void goRoom(Command command) 
+    {
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know where to go...
+            System.out.println("Go where?");
+            return;
+        }
+
+        String direction = command.getSecondWord();
+
+        // Try to leave current room.
+        Room nextRoom = user.getCurrentRoom().getExit(direction);
+
+        if (nextRoom == null) {
+            System.out.println("There is no door!");
+        }
+        else {
+            user.setRoom(nextRoom);
+            history.push(user.getCurrentRoom());//30
+            System.out.println(user.getCurrentRoom().getLongDescription());
+            System.out.println();
+        }
+    }
+    
+    /** 
+     * "look" was entered. Check the rest of the command to see
+     * whether we really quit the game.
+     * @return true, if this command quits the game, false otherwise.
+     */
+    private void lookAround() 
+    {
+        System.out.println(user.getCurrentRoom().getLongDescription() +"\n"+
+        user.getCurrentRoom().getItemsString());
+    }
+    
+    /** 
+     * "eat" was entered. Here we print a message saying the
+     * player has eaten something.
+     */
+    private void use() 
+    {
+        System.out.println("You have eaten now and are now freed of the painful");
+        System.out.println("hunger plaguing your mind");
+    }
+    
+    private void showCommandDetails()//21
+    {
+        parser.getCommands().commandDetails();
+    }
+
+    /** 
+     * "Quit" was entered. Check the rest of the command to see
+     * whether we really quit the game.
+     * @return true, if this command quits the game, false otherwise.
+     */
+    private boolean quit(Command command) 
+    {
+        if(command.hasSecondWord()) {
+            System.out.println("Quit what?");
+            return false;
+        }
+        else {
+            // signal that we want to quit
+            return true;  
+        }
+    }
+}
+
+
+33. Implement an extension that allows a player to pick up one single item. This includes implementing two 
+new commands: take and drop.
+
+33b. 
+public void take(Command command)
+    {
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getCurrentRoom().getItemsInRoom().iterator();
+        while(it.hasNext())
+        {
+            Item itemAvailable = it.next();
+            if(itemAvailable.getItemName().equals(item))
+            {
+                user.getInventory().add(itemAvailable);
+                it.remove();
+                found = true;
+                System.out.println("You have picked up " + item + ".");
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no "+ item + " to pick in this room!");
+        }
+    }
+    
+    public void drop(Command command)
+    {
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getInventory().iterator();
+        while(it.hasNext())
+        {
+            Item itemDropped = it.next();
+            if(itemDropped.getItemName().equals(item))
+            {
+                user.getCurrentRoom().getItemsInRoom().add(itemDropped);
+                it.remove();
+                found = true;
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is not an item called " + item + 
+            "you can drop.");
+        }
+    }
+
+34. Extend your implementation to allow the player to carry any number of items. 
+
+34b.Has been done in the Q33 just above.
+
+35. Add a restriction that allows the player to carry items only up to a specified maximum weight. The 
+maximum weight a player can carry is an attribute of the player. 
+
+35b.
+public void take(Command command)
+    {
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getCurrentRoom().getItemsInRoom().iterator();
+        while(it.hasNext())
+        {
+            Item itemAvailable = it.next();
+            if(itemAvailable.getItemName().equals(item))
+            {
+                found = true;
+                if(user.getCurrentWeight() + itemAvailable.getWeight() <= weightLimit)
+                {
+                    user.getInventory().add(itemAvailable);
+                    int newWeight = user.getCurrentWeight() + itemAvailable.getWeight();
+                    user.setCurrentWeight(newWeight);
+                    it.remove();
+                    System.out.println("You have picked up " + item + ".");
+                    break;
+                }else
+                {
+                    System.out.println("You cannot pick up " + item + "!");
+                    System.out.println("Your inventory is too full!");
+                    break;
+                }
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no "+ item + " to pick in this room!");
+        }
+    }
+
+36. Implement an items command that prints out all items currently carried and their total weight. 
+
+36b.I called mine inventory, im sorry.
+//from item class
+public String itemDetails()
+    {
+        String details = "Item: "+ getItemName() + "\n" +
+        "Description: " + getItemDescription() + "\n" +
+        "Seems to weigh about " + getWeight() + " lbs.\n";
+        return details;
+    }
+
+//from command words class
+public class CommandWords
+{
+    // A constant array that holds all valid command words.
+    private static final String[] validCommands = {
+        "go", 
+        "quit", 
+        "help", 
+        "look", 
+        "use", 
+        "details", 
+        "back", 
+        "investigate", 
+        "take", 
+        "drop",
+        "inventory"
+    };
+    
+    private static final HashMap<String,Integer> LENGTH = new HashMap<>();
+    static//21
+    {
+        LENGTH.put("go",2);
+        LENGTH.put("quit",1);
+        LENGTH.put("help",1);
+        LENGTH.put("look",1);
+        LENGTH.put("use",2);
+        LENGTH.put("details",1);
+        LENGTH.put("back",1);//26
+        LENGTH.put("investigate",1);
+        LENGTH.put("take",2);//33
+        LENGTH.put("drop",2);//33
+        LENGTH.put("inventory",1);//36
+    }
+    
+    private static final HashMap<String,String> DESCRIPTION = new HashMap<>();
+    static//21
+    {
+        DESCRIPTION.put("go", "to move around, must specify direction after 'go'.");
+        DESCRIPTION.put("quit", "to exit game.");
+        DESCRIPTION.put("help", "displays game context & valid commands.");
+        DESCRIPTION.put("look", "to examine current surroundings.");
+        DESCRIPTION.put("use", "to utilize an item");
+        DESCRIPTION.put("details", "this very message shows length and a brief explaination of all commands.");
+        DESCRIPTION.put("back", "to go back into the previous room.");//26
+        DESCRIPTION.put("investigate", "to inspect surroundings for any items.");
+        DESCRIPTION.put("take","to grab an item in the current location.");//33
+        DESCRIPTION.put("drop","to drop an item from your inventory in your current location.");//33
+        DESCRIPTION.put("inventory","to see the contents of your inventory.");//36
+    }
+
+//from game class
+public void inventory()
+    {
+        System.out.println("Inventory: \n");
+        for(Item item : user.getInventory())
+            {
+                System.out.println(item.itemDetails());
+            }
+    }
+
+37. Add a magic cookie item to a room. Add an eat cookie command. If a player finds and eats the magic 
+cookie, it increases the weight that the player can carry. (You might like to modify this slightly to 
+better fit into your own game scenario.)
+
+37b.I called mine a potion!
+/** 
+     * "use" was entered. Here we print a message saying the
+     * player has eaten something.
+     */
+    private void use(Command command) 
+    {
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know where to go...
+            System.out.println("Use what?");
+            return;
+        }
+        
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getInventory().iterator();
+        while(it.hasNext())
+        {
+            Item itemInInventory = it.next();
+            if(itemInInventory.getItemName().equals(item))
+            {
+                System.out.println("You have used: " + item + " successfully.");
+                if(itemInInventory.getItemName().equals("potion"))
+                {
+                    weightLimit = weightLimit + 984;
+                    System.out.println("The potion has made you able to carry around "
+                    + weightLimit + " lbs. WOW, you are on steroids.");
+                }
+                it.remove();
+                found = true;
+                break;//stops if a match is found!
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no " + item + " here to use.");
+        }
     }
