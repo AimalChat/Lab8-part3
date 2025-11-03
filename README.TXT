@@ -542,9 +542,11 @@ better fit into your own game scenario.)
                 System.out.println("You have used: " + item + " successfully.");
                 if(itemInInventory.getItemName().equals("potion"))
                 {
-                    weightLimit = weightLimit + 984;
+                    user.setWeightLimit(weightLimit + 984);
                     System.out.println("The potion has made you able to carry around "
-                    + weightLimit + " lbs. WOW, you are on steroids.");
+                    + user.getWeightLimit() + " lbs. WOW, you are on steroids.");
+                    int newWeight = user.getCurrentWeight() - itemInInventory.getWeight();
+                    user.setCurrentWeight(newWeight);
                 }
                 it.remove();
                 found = true;
