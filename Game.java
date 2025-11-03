@@ -21,13 +21,15 @@ import java.util.Iterator;
 public class Game 
 {
     private Parser parser;
-    private Room currentRoom;
-    private static int weightLimit = 15;
+    private Player user;
+    private int weightLimit;
     private static final ArrayList<Item> items = Item.getItemList();
     private Stack<Room> history = new Stack<>();//30
     
     public Game() 
     {
+        user = new Player("The Chosen One");
+        weightLimit = user.getWeightLimit();
         createRooms();
         parser = new Parser();
     }
@@ -35,7 +37,7 @@ public class Game
     /**
      * Create all the rooms and link their exits together.
      */
-    public void createRooms()
+    private void createRooms()
     {
         Room outside, theater, pub, lab, office;
       
@@ -65,8 +67,8 @@ public class Game
         pub.addItem(items.get(2));
         
         //initialize starting room.
-        currentRoom = outside;
-        history.push(currentRoom);//30
+        user.setRoom(outside);
+        history.push(user.getCurrentRoom());//30
     }
 
     /**
@@ -97,7 +99,7 @@ public class Game
         System.out.println("World of Zuul is a new, incredibly boring adventure game.");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
-        System.out.println(currentRoom.getLongDescription());
+        System.out.println(user.getCurrentRoom().getLongDescription());
         System.out.println();
     }
     
@@ -127,6 +129,10 @@ public class Game
             case "details" -> showCommandDetails();
             case "back" -> goBack();
             case "investigate" -> investigate();
+            case "take" -> take(command);
+            case "drop" -> drop(command);
+            case "inventory" -> inventory();
+            case "profile" -> getProfile();
             default -> System.out.println("I don't know what you mean...");
         }
 
@@ -135,44 +141,18 @@ public class Game
 
     // implementations of user commands:
     
-    public void investigate()
+    private void getProfile()
     {
-        System.out.println("You closely inspect your surroundings here.");
-        if(currentRoom.getItemsInRoom().isEmpty())
-        {
-            System.out.println("You have not found anything.");
-        }else
-        {
-            for(Item item : currentRoom.getItemsInRoom())
+        System.out.println(user.getProfileString());
+    }
+    
+    private void inventory()
+    {
+        System.out.println("Inventory: \n");
+        for(Item item : user.getInventory())
             {
                 System.out.println(item.itemDetails());
             }
-        }
-    }
-    
-    public void goBack()//30
-    {
-        if(history.size() <= 1){
-            System.out.println("Go back where?");
-        }else{
-            history.pop();
-            currentRoom = history.peek();
-            System.out.println("You move back to the previous room.");
-            System.out.println(currentRoom.getLongDescription());
-        }
-    }
-
-    /**
-     * Print out some help information.
-     * Here we print some stupid, cryptic message and a list of the 
-     * command words.
-     */
-    private void printHelp() 
-    {
-        System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
-        System.out.println();
-        System.out.println(CommandWords.showCommandWords());
     }
     
     /** 
@@ -189,18 +169,20 @@ public class Game
         
         String item = command.getSecondWord();
         boolean found = false;
-        Iterator<Item> it = currentRoom.getItemsInRoom().iterator();
+        Iterator<Item> it = user.getInventory().iterator();
         while(it.hasNext())
         {
-            Item itemAvailable = it.next();
-            if(itemAvailable.getItemName().equals(item))
+            Item itemInInventory = it.next();
+            if(itemInInventory.getItemName().equals(item))
             {
                 System.out.println("You have used: " + item + " successfully.");
-                if(itemAvailable.getItemName().equals("potion"))
+                if(itemInInventory.getItemName().equals("potion"))
                 {
-                    weightLimit = weightLimit + 984;
+                    user.setWeightLimit(weightLimit + 984);
                     System.out.println("The potion has made you able to carry around "
-                    + weightLimit + " lbs. WOW, you are on steroids.");
+                    + user.getWeightLimit() + " lbs. WOW, you are on steroids.");
+                    int newWeight = user.getCurrentWeight() - itemInInventory.getWeight();
+                    user.setCurrentWeight(newWeight);
                 }
                 it.remove();
                 found = true;
@@ -211,6 +193,104 @@ public class Game
         {
             System.out.println("There is no " + item + " here to use.");
         }
+    }
+    
+    private void take(Command command)
+    {
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getCurrentRoom().getItemsInRoom().iterator();
+        while(it.hasNext())
+        {
+            Item itemAvailable = it.next();
+            if(itemAvailable.getItemName().equals(item))
+            {
+                found = true;
+                if(user.getCurrentWeight() + itemAvailable.getWeight() <= weightLimit)
+                {
+                    user.getInventory().add(itemAvailable);
+                    int newWeight = user.getCurrentWeight() + itemAvailable.getWeight();
+                    user.setCurrentWeight(newWeight);
+                    it.remove();
+                    System.out.println("You have picked up " + item + ".");
+                    break;
+                }else
+                {
+                    System.out.println("You cannot pick up " + item + "!");
+                    System.out.println("Your inventory is too full!");
+                    break;
+                }
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no "+ item + " to pick in this room!");
+        }
+    }
+    
+    private void drop(Command command)
+    {
+        String item = command.getSecondWord();
+        boolean found = false;
+        Iterator<Item> it = user.getInventory().iterator();
+        while(it.hasNext())
+        {
+            Item itemDropped = it.next();
+            if(itemDropped.getItemName().equals(item))
+            {
+                user.getCurrentRoom().getItemsInRoom().add(itemDropped);
+                int newWeight = user.getCurrentWeight() - itemDropped.getWeight();
+                user.setCurrentWeight(newWeight);
+                it.remove();
+                System.out.println("You have dropped " + item +" succesfully.");
+                found = true;
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is not an item called " + item + 
+            " you can drop.");
+        }
+    }
+    
+    private void investigate()
+    {
+        System.out.println("You closely inspect your surroundings here.");
+        if(user.getCurrentRoom().getItemsInRoom().isEmpty())
+        {
+            System.out.println("You have not found anything.");
+        }else
+        {
+            for(Item item : user.getCurrentRoom().getItemsInRoom())
+            {
+                System.out.println(item.itemDetails());
+            }
+        }
+    }
+    
+    private void goBack()//30
+    {
+        if(history.size() <= 1){
+            System.out.println("Go back where?");
+        }else{
+            history.pop();
+            user.setRoom(history.peek());//currentRoom = history.peek();
+            System.out.println("You move back to the previous room.");
+            System.out.println(user.getCurrentRoom().getLongDescription());
+        }
+    }
+
+    /**
+     * Print out some help information.
+     * Here we print some stupid, cryptic message and a list of the 
+     * command words.
+     */
+    private void printHelp() 
+    {
+        System.out.println("You are lost. You are alone. You wander");
+        System.out.println("around at the university.");
+        System.out.println();
+        System.out.println(CommandWords.showCommandWords());
     }
 
     /** 
@@ -228,15 +308,15 @@ public class Game
         String direction = command.getSecondWord();
 
         // Try to leave current room.
-        Room nextRoom = currentRoom.getExit(direction);
+        Room nextRoom = user.getCurrentRoom().getExit(direction);
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
-            currentRoom = nextRoom;
-            history.push(currentRoom);//30
-            System.out.println(currentRoom.getLongDescription());
+            user.setRoom(nextRoom);
+            history.push(user.getCurrentRoom());//30
+            System.out.println(user.getCurrentRoom().getLongDescription());
             System.out.println();
         }
     }
@@ -248,18 +328,8 @@ public class Game
      */
     private void lookAround() 
     {
-        System.out.println(currentRoom.getLongDescription() +"\n"+
-        currentRoom.getItemsString());
-    }
-    
-    /** 
-     * "eat" was entered. Here we print a message saying the
-     * player has eaten something.
-     */
-    private void use() 
-    {
-        System.out.println("You have eaten now and are now freed of the painful");
-        System.out.println("hunger plaguing your mind");
+        System.out.println(user.getCurrentRoom().getLongDescription() +"\n"+
+        user.getCurrentRoom().getItemsString());
     }
     
     private void showCommandDetails()//21

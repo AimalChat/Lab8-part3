@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class Item
 {
     private int weight;
+    private Effect effect;
     private String itemName;
     private String description;
     private static ArrayList<Item> items = new ArrayList<Item>();
@@ -25,11 +26,17 @@ public class Item
     /**
      * Constructor for objects of class Item
      */
-    public Item(String itemName, String description, int weight)
+    public Item(String itemName, String description, int weight)//, Effect effect)
     {
         this.itemName = itemName;
         this.description = description;
         this.weight = weight;
+        //this.effect = effect;
+    }
+    
+    public void applyEffect(Game game)
+    {
+        
     }
     
     public static ArrayList<Item> getItemList()

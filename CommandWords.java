@@ -16,8 +16,20 @@ public class CommandWords
 {
     // A constant array that holds all valid command words.
     private static final String[] validCommands = {
-        "go", "quit", "help", "look", "use", "details", "back", "investigate"
+        "go", 
+        "quit", 
+        "help", 
+        "look", 
+        "use", 
+        "details", 
+        "back", 
+        "investigate", 
+        "take", 
+        "drop",
+        "inventory",
+        "profile"
     };
+    
     private static final HashMap<String,Integer> LENGTH = new HashMap<>();
     static//21
     {
@@ -25,11 +37,16 @@ public class CommandWords
         LENGTH.put("quit",1);
         LENGTH.put("help",1);
         LENGTH.put("look",1);
-        LENGTH.put("use",1);
+        LENGTH.put("use",2);
         LENGTH.put("details",1);
         LENGTH.put("back",1);//26
         LENGTH.put("investigate",1);
+        LENGTH.put("take",2);//33
+        LENGTH.put("drop",2);//33
+        LENGTH.put("inventory",1);//36
+        LENGTH.put("profile",1);
     }
+    
     private static final HashMap<String,String> DESCRIPTION = new HashMap<>();
     static//21
     {
@@ -41,6 +58,10 @@ public class CommandWords
         DESCRIPTION.put("details", "this very message shows length and a brief explaination of all commands.");
         DESCRIPTION.put("back", "to go back into the previous room.");//26
         DESCRIPTION.put("investigate", "to inspect surroundings for any items.");
+        DESCRIPTION.put("take","to grab an item in the current location.");//33
+        DESCRIPTION.put("drop","to drop an item from your inventory in your current location.");//33
+        DESCRIPTION.put("inventory","to see the contents of your inventory.");//36
+        DESCRIPTION.put("profile","to see current stats.");
     }
 
     /**
