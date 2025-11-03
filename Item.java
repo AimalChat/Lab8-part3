@@ -15,7 +15,11 @@ public class Item
     private static ArrayList<Item> items = new ArrayList<Item>();
     static
     {
-        items.add(new Item("magic cookie","a special cookie that gives the power to hold more items.", 2));
+        items.add(new Item("potion","a special potion that gives the power to hold more items.", 2));
+        items.add(new Item("gun", "an AK-47 to be exact :D", 10));
+        items.add(new Item("bicuits", "a buttery biscoff biscuits, curbs hunger.", 2));
+        items.add(new Item("feather", "a pigeon feather.", 1));
+        items.add(new Item("dumbbell", "a 5 lbs dumbbell, belongs in the gymnasium.", 5));
     }
     
     /**
@@ -41,6 +45,14 @@ public class Item
     public String getItemDescription()
     {
         return description;
+    }
+    
+    public String itemDetails()
+    {
+        String details = "Item: "+ getItemName() + "\n" +
+        "Description: " + getItemDescription() + "\n" +
+        "Seems to weigh about " + getWeight() + " lbs.\n";
+        return details;
     }
     
     public int getWeight()

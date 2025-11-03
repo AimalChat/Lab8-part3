@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.Iterator;
 
 /**
  *  This class is the main class of the "World of Zuul" application. 
@@ -21,7 +22,7 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
-    private static final int WEIGHTLIMIT = 15;
+    private static int weightLimit = 15;
     private static final ArrayList<Item> items = Item.getItemList();
     private Stack<Room> history = new Stack<>();//30
     
@@ -54,8 +55,16 @@ public class Game
         lab.setExit("north", outside);
         lab.setExit("east", office);
         office.setExit("west", lab);
+        
         //initialise items
-        pub.addItem(items.get(0));
+        lab.addItem(items.get(0));
+        outside.addItem(items.get(3));
+        outside.addItem(items.get(1));
+        office.addItem(items.get(1));
+        theater.addItem(items.get(4));
+        pub.addItem(items.get(2));
+        
+        //initialize starting room.
         currentRoom = outside;
         history.push(currentRoom);//30
     }
@@ -106,32 +115,40 @@ public class Game
             return false;
         }
 
-        String commandWord = command.getCommandWord();
-        if (commandWord.equals("help")) {
-            printHelp();
-        }
-        else if (commandWord.equals("go")) {
-            goRoom(command);
-        }
-        else if (commandWord.equals("quit")) {
-            wantToQuit = quit(command);
-        }else if (commandWord.equals("look")) {
-            lookAround();
-        }else if (commandWord.equals("use")) {
-            use();
-        }else if (commandWord.equals("details")) {//21
-            showCommandDetails();
-        }else if (commandWord.equals("use")) {
-            use(command);
-        }else if(commandWord.equals("back")) {//26
-            goBack();
-        }
+        String commandWord = command.getCommandWord();//31
         
+        switch(commandWord) 
+        {
+            case "help" -> printHelp();
+            case "go" -> goRoom(command);
+            case "quit" -> wantToQuit = quit(command);
+            case "look" -> lookAround();
+            case "use" -> use(command);
+            case "details" -> showCommandDetails();
+            case "back" -> goBack();
+            case "investigate" -> investigate();
+            default -> System.out.println("I don't know what you mean...");
+        }
 
         return wantToQuit;
     }
 
     // implementations of user commands:
+    
+    public void investigate()
+    {
+        System.out.println("You closely inspect your surroundings here.");
+        if(currentRoom.getItemsInRoom().isEmpty())
+        {
+            System.out.println("You have not found anything.");
+        }else
+        {
+            for(Item item : currentRoom.getItemsInRoom())
+            {
+                System.out.println(item.itemDetails());
+            }
+        }
+    }
     
     public void goBack()//30
     {
@@ -141,7 +158,7 @@ public class Game
             history.pop();
             currentRoom = history.peek();
             System.out.println("You move back to the previous room.");
-            lookAround();
+            System.out.println(currentRoom.getLongDescription());
         }
     }
 
@@ -159,7 +176,7 @@ public class Game
     }
     
     /** 
-     * "eat" was entered. Here we print a message saying the
+     * "use" was entered. Here we print a message saying the
      * player has eaten something.
      */
     private void use(Command command) 
@@ -171,7 +188,29 @@ public class Game
         }
         
         String item = command.getSecondWord();
-        
+        boolean found = false;
+        Iterator<Item> it = currentRoom.getItemsInRoom().iterator();
+        while(it.hasNext())
+        {
+            Item itemAvailable = it.next();
+            if(itemAvailable.getItemName().equals(item))
+            {
+                System.out.println("You have used: " + item + " successfully.");
+                if(itemAvailable.getItemName().equals("potion"))
+                {
+                    weightLimit = weightLimit + 984;
+                    System.out.println("The potion has made you able to carry around "
+                    + weightLimit + " lbs. WOW, you are on steroids.");
+                }
+                it.remove();
+                found = true;
+                break;//stops if a match is found!
+            }
+        }
+        if(!found)
+        {
+            System.out.println("There is no " + item + " here to use.");
+        }
     }
 
     /** 

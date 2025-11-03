@@ -16,7 +16,7 @@ public class CommandWords
 {
     // A constant array that holds all valid command words.
     private static final String[] validCommands = {
-        "go", "quit", "help", "look", "use", "details", "back"
+        "go", "quit", "help", "look", "use", "details", "back", "investigate"
     };
     private static final HashMap<String,Integer> LENGTH = new HashMap<>();
     static//21
@@ -28,6 +28,7 @@ public class CommandWords
         LENGTH.put("use",1);
         LENGTH.put("details",1);
         LENGTH.put("back",1);//26
+        LENGTH.put("investigate",1);
     }
     private static final HashMap<String,String> DESCRIPTION = new HashMap<>();
     static//21
@@ -39,6 +40,7 @@ public class CommandWords
         DESCRIPTION.put("use", "to utilize an item");
         DESCRIPTION.put("details", "this very message shows length and a brief explaination of all commands.");
         DESCRIPTION.put("back", "to go back into the previous room.");//26
+        DESCRIPTION.put("investigate", "to inspect surroundings for any items.");
     }
 
     /**

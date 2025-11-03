@@ -74,6 +74,11 @@ public class Room
         itemsInRoom.add(item);
     }
     
+    public ArrayList<Item> getItemsInRoom()
+    {
+        return itemsInRoom;
+    }
+    
     public String getItemsString()
     {
         List<String> listOfItems = new ArrayList<>();

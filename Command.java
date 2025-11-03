@@ -19,7 +19,7 @@
 
 public class Command
 {
-    private String commandWord;
+    private String commandWord;//31
     private String secondWord;
 
     /**
@@ -29,9 +29,9 @@ public class Command
      *                  was not recognised.
      * @param secondWord The second word of the command.
      */
-    public Command(String firstWord, String secondWord)
+    public Command(String firstWord, String secondWord)//31
     {
-        commandWord = firstWord;
+        commandWord = firstWord;//31
         this.secondWord = secondWord;
     }
 
@@ -40,7 +40,7 @@ public class Command
      * command was not understood, the result is null.
      * @return The command word.
      */
-    public String getCommandWord()
+    public String getCommandWord()//31
     {
         return commandWord;
     }
