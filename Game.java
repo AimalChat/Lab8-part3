@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Random;
 
 /**
  *  This class is the main class of the "World of Zuul" application. 
@@ -39,7 +41,8 @@ public class Game
      */
     private void createRooms()
     {
-        Room outside, theater, pub, lab, office;
+        Room outside, theater, pub, lab, office, portal;
+        
       
         // create the rooms
         outside = new Room("outside the main entrance of the university");
@@ -47,6 +50,7 @@ public class Game
         pub = new Room("in the campus pub");
         lab = new Room("in a computing lab");
         office = new Room("in the computing admin office");
+        portal = new TransporterRoom("in front of a tear in time and space sits in front of you.");
         
         // initialise room exits
         outside.setExit("east", theater);
@@ -56,7 +60,9 @@ public class Game
         pub.setExit("east", outside);
         lab.setExit("north", outside);
         lab.setExit("east", office);
+        lab.setExit("down", portal);
         office.setExit("west", lab);
+        portal.setExit("up", lab);
         
         //initialise items
         lab.addItem(items.get(0));
@@ -292,6 +298,12 @@ public class Game
         System.out.println();
         System.out.println(CommandWords.showCommandWords());
     }
+    
+    private void teleport()
+    {
+        System.out.println("WOAH! It's sucking you in!" + "\n" + "You've been teleported somewhere familiar to you!");
+        user.setRoom(TransporterRoom.getRandomRoom(history));
+    }
 
     /** 
      * Try to go in one direction. If there is an exit, enter
@@ -309,16 +321,42 @@ public class Game
 
         // Try to leave current room.
         Room nextRoom = user.getCurrentRoom().getExit(direction);
-
-        if (nextRoom == null) {
+        
+        if(nextRoom instanceof TransporterRoom)
+        {
+            user.setRoom(nextRoom);
+            System.out.println("You are " + user.getCurrentRoom().getDescription());
+            System.out.println();
+            teleport();
+        }
+        else if (nextRoom == null) 
+        {
             System.out.println("There is no door!");
         }
-        else {
+        else 
+        {
             user.setRoom(nextRoom);
             history.push(user.getCurrentRoom());//30
             System.out.println(user.getCurrentRoom().getLongDescription());
             System.out.println();
         }
+        
+        //switch(nextRoom)
+        //{
+            //case TransporterRoom portal -> goBack();
+            //default -> System.out.println("There is no door!");
+        //}
+        
+
+        // if (nextRoom == null) {
+            // System.out.println("There is no door!");
+        // }
+        // else {
+            // user.setRoom(nextRoom);
+            // history.push(user.getCurrentRoom());//30
+            // System.out.println(user.getCurrentRoom().getLongDescription());
+            // System.out.println();
+        // }
     }
     
     /** 
